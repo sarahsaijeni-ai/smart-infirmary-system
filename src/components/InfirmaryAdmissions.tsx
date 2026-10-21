@@ -115,7 +115,7 @@ export const InfirmaryAdmissions: React.FC<AdmissionsProps> = ({
 
     if (disposition === 'Referred to Hospital' && onReferralCreated) {
       onReferralCreated({
-        id: `REF-${Date.now().toString().slice(-3)}`,
+        id: crypto.randomUUID(),
         visitId: newVisit.id,
         patientName: selectedPatient.name,
         patientType: selectedPatient.type,

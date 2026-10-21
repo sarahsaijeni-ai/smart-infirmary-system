@@ -29,6 +29,8 @@ export const InfirmaryInventory: React.FC<InventoryProps> = ({
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [showRestockModal, setShowRestockModal] = useState(false);
+  const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [newItem, setNewItem] = useState({ name: '', category: 'Oral Medicine', remainingStock: '0', minimumLevel: '0', unit: 'Tablets', batchNumber: '', expiryDate: '', supplierName: '' });
   const [selectedItemForRestock, setSelectedItemForRestock] = useState<string>(inventory[0]?.id || '');
   const [restockQty, setRestockQty] = useState<number>(50);
 
@@ -82,13 +84,16 @@ export const InfirmaryInventory: React.FC<InventoryProps> = ({
           </p>
         </div>
 
-        <button
+        <div className="flex flex-wrap gap-2"><button
+          onClick={() => setShowAddItemModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl text-xs border border-slate-700 transition-all"
+        ><Plus className="w-4 h-4" /><span>Add Inventory Item</span></button><button
           onClick={() => setShowRestockModal(true)}
           className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl text-xs shadow-lg shadow-emerald-600/20 transition-all"
         >
           <Plus className="w-4 h-4" />
           <span>Receive New Stock / Replenish</span>
-        </button>
+        </button></div>
       </div>
 
       {/* Section 16 Risk Alerts: Low Stock & Expiring Items */}
@@ -236,6 +241,38 @@ export const InfirmaryInventory: React.FC<InventoryProps> = ({
           </table>
         </div>
       </div>
+
+      {/* Add inventory item modal */}
+      {showAddItemModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            const item: InventoryItem = {
+              id: crypto.randomUUID(), name: newItem.name.trim(), category: newItem.category as InventoryItem['category'],
+              remainingStock: Math.max(0, Number(newItem.remainingStock)), minimumLevel: Math.max(0, Number(newItem.minimumLevel)),
+              unit: newItem.unit.trim(), batchNumber: newItem.batchNumber.trim(), expiryDate: newItem.expiryDate,
+              supplierName: newItem.supplierName.trim(), lastRestocked: new Date().toISOString().slice(0,10)
+            };
+            setInventory(prev => [item, ...prev]);
+            setNewItem({ name: '', category: 'Oral Medicine', remainingStock: '0', minimumLevel: '0', unit: 'Tablets', batchNumber: '', expiryDate: '', supplierName: '' });
+            setShowAddItemModal(false);
+          }} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4 text-xs">
+            <h3 className="text-base font-bold text-white">Add medicine or medical supply</h3>
+            <p className="text-slate-400">Enter verified stock counts and expiry details. Saved items are stored in Supabase.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label className="text-slate-300">Item name<input required value={newItem.name} onChange={e=>setNewItem({...newItem,name:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 p-2 text-white"/></label>
+              <label className="text-slate-300">Category<select value={newItem.category} onChange={e=>setNewItem({...newItem,category:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 p-2 text-white">{['Oral Medicine','Topical & Antiseptic','First Aid & Dressing','PPE & Consumables','Diagnostic Equipment'].map(c=><option key={c}>{c}</option>)}</select></label>
+              <label className="text-slate-300">Current quantity<input type="number" min="0" required value={newItem.remainingStock} onChange={e=>setNewItem({...newItem,remainingStock:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 p-2 text-white"/></label>
+              <label className="text-slate-300">Minimum stock level<input type="number" min="0" required value={newItem.minimumLevel} onChange={e=>setNewItem({...newItem,minimumLevel:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 p-2 text-white"/></label>
+              <label className="text-slate-300">Unit (e.g. tablets, boxes)<input required value={newItem.unit} onChange={e=>setNewItem({...newItem,unit:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 p-2 text-white"/></label>
+              <label className="text-slate-300">Batch number<input required value={newItem.batchNumber} onChange={e=>setNewItem({...newItem,batchNumber:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 p-2 text-white"/></label>
+              <label className="text-slate-300">Expiry date<input type="date" required value={newItem.expiryDate} onChange={e=>setNewItem({...newItem,expiryDate:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 p-2 text-white"/></label>
+              <label className="text-slate-300">Supplier<input value={newItem.supplierName} onChange={e=>setNewItem({...newItem,supplierName:e.target.value})} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 p-2 text-white"/></label>
+            </div>
+            <div className="flex justify-end gap-2"><button type="button" onClick={()=>setShowAddItemModal(false)} className="rounded-lg bg-slate-800 px-4 py-2 text-slate-200">Cancel</button><button type="submit" className="rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white">Save item</button></div>
+          </form>
+        </div>
+      )}
 
       {/* Restock Modal */}
       {showRestockModal && (

@@ -36,7 +36,7 @@ export const InfirmaryReferrals: React.FC<ReferralsProps> = ({
   const handleCreateReferral = (e: React.FormEvent) => {
     e.preventDefault();
     const newRef: ReferralRecord = {
-      id: `REF-${Date.now().toString().slice(-3)}`,
+      id: crypto.randomUUID(),
       visitId: `VIS-MANUAL`,
       patientName,
       patientType: 'Student',
