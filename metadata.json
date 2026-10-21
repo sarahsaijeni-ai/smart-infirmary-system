@@ -1,6 +1,12 @@
 {
-  "name": "BioSphere AI",
-  "description": "Intelligent offline-first biodiversity identification, learning, and conservation platform specification, prompt hub, and interactive explorer.",
+  "name": "Smart School Infirmary System",
+  "description": "School-based infirmary management interface for visit admissions, medical supplies inventory, referrals, reports, and compliance.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "IN-FIRMARY VISIT MANAGEMENT",
+    "INVENTORY TRACKING",
+    "REFERRAL MANAGEMENT",
+    "REPORTING",
+    "COMPLIANCE"
+  ]
 }
