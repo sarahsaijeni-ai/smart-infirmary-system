@@ -20,7 +20,9 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "tailwindcss": "4.1.11",
-    "vite": "6.3.5"
+    "vite": "6.3.5",
+    "@supabase/supabase-js": "^2.76.1",
+    "@supabase/ssr": "^0.7.0"
   },
   "devDependencies": {
     "@types/node": "22.15.30",
