@@ -1,0 +1,6 @@
+{
+  "name": "BioSphere AI",
+  "description": "Intelligent offline-first biodiversity identification, learning, and conservation platform specification, prompt hub, and interactive explorer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
