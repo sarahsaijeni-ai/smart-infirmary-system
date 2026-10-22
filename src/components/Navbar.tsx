@@ -1,24 +1,10 @@
 import React from 'react';
-import { 
-  Building2, 
-  Activity, 
-  Pill, 
-  ArrowUpRight, 
-  BarChart3, 
-  FileCheck2, 
-  FileText, 
-  Sparkles, 
-  ShieldCheck,
-  HeartPulse
+import {
+  Activity, ArrowUpRight, BarChart3, FileCheck2, FileText, HeartPulse, Home,
+  Pill, ShieldCheck
 } from 'lucide-react';
 
-export type InfirmaryTab = 
-  | 'prompt'
-  | 'admissions' 
-  | 'inventory' 
-  | 'referrals' 
-  | 'reports' 
-  | 'compliance';
+export type InfirmaryTab = 'dashboard' | 'prompt' | 'admissions' | 'inventory' | 'referrals' | 'reports' | 'compliance';
 
 interface NavbarProps {
   activeTab: InfirmaryTab;
@@ -26,133 +12,42 @@ interface NavbarProps {
   lowStockCount: number;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({
-  activeTab,
-  setActiveTab,
-  lowStockCount
-}) => {
+export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, lowStockCount }) => {
+  const tabs: { id: InfirmaryTab; label: string; icon: React.ComponentType<{ className?: string }>; color: string }[] = [
+    { id: 'dashboard', label: 'Admin Dashboard', icon: Home, color: 'text-cyan-300' },
+    { id: 'admissions', label: 'Medical Admissions', icon: Activity, color: 'text-emerald-400' },
+    { id: 'inventory', label: 'Medicine Inventory', icon: Pill, color: 'text-violet-400' },
+    { id: 'referrals', label: 'Hospital Referrals', icon: ArrowUpRight, color: 'text-rose-400' },
+    { id: 'reports', label: 'Reports & Analytics', icon: BarChart3, color: 'text-cyan-400' },
+    { id: 'compliance', label: 'Compliance & Team', icon: FileCheck2, color: 'text-amber-400' },
+    { id: 'prompt', label: 'System Guide', icon: FileText, color: 'text-blue-400' },
+  ];
   return (
-    <header className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-blue-900/40 text-slate-100 shadow-xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Top Header */}
-        <div className="flex items-center justify-between h-16 gap-4">
-          
-          {/* Logo & School Branding */}
-          <div 
-            className="flex items-center gap-3 cursor-pointer shrink-0" 
-            onClick={() => setActiveTab('prompt')}
-          >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-blue-500/20 shadow-lg ring-1 ring-blue-400/40">
-              <HeartPulse className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-blue-400 via-indigo-300 to-cyan-300 bg-clip-text text-transparent">
-                  Smart School Infirmary
-                </span>
-                <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-blue-950/90 text-blue-300 border border-blue-600/50 rounded-full">
-                  AfricAcademy Arusha Science
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">
-                Health & Information Management System
-              </p>
-            </div>
-          </div>
-
-          {/* Quick Status Badges */}
-          <div className="flex items-center gap-2">
-            {lowStockCount > 0 && (
-              <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-950 text-amber-300 border border-amber-800 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                <span>{lowStockCount} Items Low Stock</span>
-              </span>
-            )}
-            <span className="px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800 hidden sm:flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>RBAC Active</span>
+    <header className="sticky top-0 z-50 border-b border-blue-900/40 bg-slate-900/95 text-slate-100 shadow-xl backdrop-blur-md">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex min-h-16 items-center justify-between gap-4 py-3">
+          <button onClick={() => setActiveTab('dashboard')} className="flex min-w-0 items-center gap-3 text-left" aria-label="Go to admin dashboard">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg ring-1 ring-blue-400/40">
+              <HeartPulse className="h-6 w-6 text-white" />
             </span>
+            <span className="min-w-0">
+              <span className="block truncate text-base font-extrabold tracking-tight text-white sm:text-lg">Smart School Infirmary</span>
+              <span className="hidden text-[11px] text-slate-400 sm:block">AfricAcademy Arusha Science · Health Management</span>
+            </span>
+          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            {lowStockCount > 0 && <span className="rounded-lg border border-amber-800 bg-amber-950 px-2.5 py-1 text-xs font-semibold text-amber-300">{lowStockCount} low stock</span>}
+            <span className="hidden items-center gap-1.5 rounded-lg border border-emerald-800 bg-emerald-950 px-3 py-1.5 text-xs font-semibold text-emerald-300 sm:flex"><ShieldCheck className="h-3.5 w-3.5" /> Secure access</span>
           </div>
-
         </div>
-
-        {/* Navigation Tabs */}
-        <div className="flex space-x-1 overflow-x-auto py-2 scrollbar-none border-t border-slate-800 text-xs font-medium">
-          
-          <button
-            onClick={() => setActiveTab('prompt')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
-              activeTab === 'prompt'
-                ? 'bg-blue-600/20 text-blue-300 border border-blue-500/40 font-bold'
-                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-            }`}
-          >
-            <FileText className="w-4 h-4 text-blue-400" />
-            <span>Master Prompt & SRS (Price-Free)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('admissions')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
-              activeTab === 'admissions'
-                ? 'bg-blue-600/20 text-blue-300 border border-blue-500/40 font-bold'
-                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-            }`}
-          >
-            <Activity className="w-4 h-4 text-emerald-400" />
-            <span>Medical Admissions & Triage</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('inventory')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
-              activeTab === 'inventory'
-                ? 'bg-blue-600/20 text-blue-300 border border-blue-500/40 font-bold'
-                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-            }`}
-          >
-            <Pill className="w-4 h-4 text-purple-400" />
-            <span>Inventory & Automated Stock</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('referrals')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
-              activeTab === 'referrals'
-                ? 'bg-blue-600/20 text-blue-300 border border-blue-500/40 font-bold'
-                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-            }`}
-          >
-            <ArrowUpRight className="w-4 h-4 text-red-400" />
-            <span>Hospital Referrals (Sec 7A)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('reports')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
-              activeTab === 'reports'
-                ? 'bg-blue-600/20 text-blue-300 border border-blue-500/40 font-bold'
-                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4 text-cyan-400" />
-            <span>Reports & Time Guidelines</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('compliance')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
-              activeTab === 'compliance'
-                ? 'bg-blue-600/20 text-blue-300 border border-blue-500/40 font-bold'
-                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-            }`}
-          >
-            <FileCheck2 className="w-4 h-4 text-amber-400" />
-            <span>Compliance, Team & Risks</span>
-          </button>
-
-        </div>
+        <nav aria-label="Main navigation" className="flex gap-1 overflow-x-auto border-t border-slate-800 py-2 text-sm">
+          {tabs.map(({ id, label, icon: Icon, color }) => (
+            <button key={id} onClick={() => setActiveTab(id)} aria-current={activeTab === id ? 'page' : undefined}
+              className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 font-semibold transition focus:outline-none focus:ring-2 focus:ring-blue-500 ${activeTab === id ? 'border-blue-500/60 bg-blue-600/20 text-white' : 'border-transparent text-slate-300 hover:border-slate-700 hover:bg-slate-800 hover:text-white'}`}>
+              <Icon className={`h-4 w-4 ${color}`} /><span>{label}</span>
+            </button>
+          ))}
+        </nav>
       </div>
     </header>
   );
