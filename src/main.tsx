@@ -1,6 +1,7 @@
-import {createRoot} from 'react-dom/client';
-import App from './App.tsx';
-import { AuthGate } from './components/AuthGate';
+import { createRoot } from 'react-dom/client';
+import PublicDashboard from './components/PublicDashboard';
 import './index.css';
 
-createRoot(document.getElementById('root')!).render(<AuthGate><App /></AuthGate>);
+// Temporary public dashboard landing page. Secure data workflows remain behind
+// the staff authentication flow in the full application.
+createRoot(document.getElementById('root')!).render(<PublicDashboard />);
