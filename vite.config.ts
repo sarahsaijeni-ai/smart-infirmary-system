@@ -4,9 +4,9 @@ import path from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig(() => ({
-  // Expose the public project URL configured as SUPABASE_URL.
-  // Never expose a Supabase service_role/secret key to browser code.
-  envPrefix: ['VITE_', 'SUPABASE_'],
+  // Support the owner's Netlify variable names while retaining existing names.
+  // Only use a Supabase publishable/anon key in browser code; never a service-role key.
+  envPrefix: ['VITE_', 'SUPABASE_', 'NEXT_PUBLIC_'],
   plugins: [react(), tailwindcss()],
   resolve: { alias: { '@': path.resolve(__dirname, '.') } },
   server: {
