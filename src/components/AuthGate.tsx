@@ -19,7 +19,9 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
   const [registrationOpen, setRegistrationOpen] = useState(false);
 
   useEffect(() => {
@@ -60,7 +62,8 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     };
 
     void supabase.auth.getSession().then(({ data }) => loadProfile(data.session));
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (event === 'PASSWORD_RECOVERY') setPasswordRecovery(true);
       void loadProfile(nextSession);
     });
     return () => {
@@ -119,6 +122,37 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     setBusy(false);
   };
 
+  const requestPasswordReset = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!supabase) return;
+    setBusy(true);
+    setError('');
+    setNotice('');
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: window.location.origin,
+    });
+    if (resetError) setError(resetError.message);
+    else setNotice('If an account exists for this email, a reset link has been sent. Check your inbox and spam folder.');
+    setBusy(false);
+  };
+
+  const saveNewPassword = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!supabase) return;
+    setBusy(true);
+    setError('');
+    setNotice('');
+    const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+    if (updateError) setError(updateError.message);
+    else {
+      setPasswordRecovery(false);
+      setNewPassword('');
+      setPassword('');
+      setNotice('Password updated successfully. You can continue into Smart Infirmary.');
+    }
+    setBusy(false);
+  };
+
   const signOut = async () => {
     if (supabase) await supabase.auth.signOut();
     setProfile(null);
@@ -131,15 +165,21 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
   if (loading) return <div className="min-h-screen bg-slate-950 text-slate-200 flex items-center justify-center">Checking secure staff session…</div>;
 
+  if (passwordRecovery) {
+    return <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6"><form onSubmit={saveNewPassword} className="w-full max-w-md space-y-5 rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl"><p className="text-xs font-semibold uppercase tracking-widest text-emerald-400">Secure account recovery</p><h1 className="text-2xl font-bold">Choose a new password</h1><p className="text-sm text-slate-400">Set a new password for your existing account. Your records will not be changed.</p>{error && <p role="alert" className="rounded-lg border border-red-800 bg-red-950/60 p-3 text-sm text-red-200">{error}</p>}<label className="block text-sm text-slate-300">New password<input type="password" autoComplete="new-password" required minLength={8} value={newPassword} onChange={e => setNewPassword(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-emerald-500" /></label><button disabled={busy} className="w-full rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white disabled:opacity-60">{busy ? 'Updating password…' : 'Save new password'}</button></form></div>;
+  }
+
   if (!session || !profile) {
-    return <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6"><form onSubmit={mode === 'signup' ? signUp : signIn} className="w-full max-w-md space-y-5 rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
-      <div><p className="text-xs font-semibold uppercase tracking-widest text-emerald-400">AfricAcademy · Arusha Science</p><h1 className="mt-2 text-2xl font-bold">Smart Infirmary System</h1><p className="mt-2 text-sm text-slate-400">{mode === 'signup' ? 'Create the first account. The first registered account becomes the system administrator.' : 'Sign in with your authorized staff account.'}</p></div>
+    return <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6"><form onSubmit={mode === 'signup' ? signUp : mode === 'forgot' ? requestPasswordReset : signIn} className="w-full max-w-md space-y-5 rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
+      <div><p className="text-xs font-semibold uppercase tracking-widest text-emerald-400">AfricAcademy · Arusha Science</p><h1 className="mt-2 text-2xl font-bold">Smart Infirmary System</h1><p className="mt-2 text-sm text-slate-400">{mode === 'signup' ? 'Create the first account. The first registered account becomes the system administrator.' : mode === 'forgot' ? 'Enter your account email to receive a secure password reset link.' : 'Sign in with your authorized staff account.'}</p></div>
       {error && <p role="alert" className="rounded-lg border border-red-800 bg-red-950/60 p-3 text-sm text-red-200">{error}</p>}
       {notice && <p role="status" className="rounded-lg border border-emerald-800 bg-emerald-950/50 p-3 text-sm text-emerald-200">{notice}</p>}
       {mode === 'signup' && <label className="block text-sm text-slate-300">Full name<input type="text" autoComplete="name" required minLength={2} value={displayName} onChange={e => setDisplayName(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-emerald-500" /></label>}
       <label className="block text-sm text-slate-300">Email address<input type="email" autoComplete="username" required value={email} onChange={e => setEmail(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-emerald-500" /></label>
-      <label className="block text-sm text-slate-300">Password<input type="password" autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} required minLength={mode === 'signup' ? 8 : undefined} value={password} onChange={e => setPassword(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-emerald-500" />{mode === 'signup' && <span className="mt-1 block text-xs text-slate-500">Use at least 8 characters.</span>}</label>
-      <button disabled={busy} className="w-full rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white disabled:opacity-60">{busy ? (mode === 'signup' ? 'Creating account…' : 'Signing in…') : (mode === 'signup' ? 'Create administrator account' : 'Sign in securely')}</button>
+      {mode !== 'forgot' && <label className="block text-sm text-slate-300">Password<input type="password" autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} required minLength={mode === 'signup' ? 8 : undefined} value={password} onChange={e => setPassword(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none focus:border-emerald-500" />{mode === 'signup' && <span className="mt-1 block text-xs text-slate-500">Use at least 8 characters.</span>}</label>}
+      <button disabled={busy} className="w-full rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white disabled:opacity-60">{busy ? (mode === 'signup' ? 'Creating account…' : mode === 'forgot' ? 'Sending reset link…' : 'Signing in…') : (mode === 'signup' ? 'Create administrator account' : mode === 'forgot' ? 'Send password reset link' : 'Sign in securely')}</button>
+      {mode === 'signin' && <p className="text-center text-sm text-slate-400"><button type="button" onClick={() => { setMode('forgot'); setError(''); setNotice(''); }} className="font-semibold text-emerald-400 hover:text-emerald-300">Forgot password?</button></p>}
+      {mode === 'forgot' && <p className="text-center text-sm text-slate-400"><button type="button" onClick={() => { setMode('signin'); setError(''); setNotice(''); }} className="font-semibold text-emerald-400 hover:text-emerald-300">Back to sign in</button></p>}
       {mode === 'signin' && registrationOpen && <p className="text-center text-sm text-slate-400">First time setting up this system? <button type="button" onClick={() => { setMode('signup'); setError(''); setNotice(''); }} className="font-semibold text-emerald-400 hover:text-emerald-300">Create first administrator account</button></p>}
       {mode === 'signup' && <p className="text-center text-sm text-slate-400">Already registered? <button type="button" onClick={() => { setMode('signin'); setError(''); setNotice(''); }} className="font-semibold text-emerald-400 hover:text-emerald-300">Back to sign in</button></p>}
       {mode === 'signin' && !registrationOpen && <p className="text-xs leading-relaxed text-slate-500">First-admin registration is closed. Ask the system administrator to create any additional staff accounts.</p>}
