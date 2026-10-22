@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Navbar, InfirmaryTab } from './components/Navbar';
+import { InfirmaryDashboard } from './components/InfirmaryDashboard';
 import { InfirmaryPromptHub } from './components/InfirmaryPromptHub';
 import { InfirmaryAdmissions } from './components/InfirmaryAdmissions';
 import { InfirmaryInventory } from './components/InfirmaryInventory';
@@ -11,7 +12,7 @@ import { isSupabaseConfigured, supabase } from './lib/supabase';
 import { loadInventory, loadReferrals, saveInventory, saveReferrals } from './lib/infirmaryApi';
 
 export default function App() {
- const [activeTab,setActiveTab]=useState<InfirmaryTab>('prompt');
+ const [activeTab,setActiveTab]=useState<InfirmaryTab>('dashboard');
  const [inventory,setInventoryState]=useState<InventoryItem[]>([]);
  const [referrals,setReferralsState]=useState<ReferralRecord[]>([]);
  const [loadingData,setLoadingData]=useState(true);
@@ -37,6 +38,7 @@ export default function App() {
   {dataError&&<div role="alert" className="mx-auto mt-3 max-w-7xl rounded-lg border border-red-800 bg-red-950/70 px-4 py-3 text-sm text-red-200">Database error: {dataError}</div>}
   {loadingData&&<div className="mx-auto mt-3 max-w-7xl px-4 text-xs text-slate-400">Loading saved infirmary records…</div>}
   <main className="flex-1 pb-16">
+   {activeTab==='dashboard'&&<InfirmaryDashboard setActiveTab={setActiveTab}/>}
    {activeTab==='prompt'&&<InfirmaryPromptHub/>}
    {activeTab==='admissions'&&<InfirmaryAdmissions inventory={inventory} setInventory={setInventory} onReferralCreated={handleReferralCreated}/>}
    {activeTab==='inventory'&&<InfirmaryInventory inventory={inventory} setInventory={setInventory}/>}
