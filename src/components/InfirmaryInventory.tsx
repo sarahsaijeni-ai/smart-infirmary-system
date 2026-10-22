@@ -36,12 +36,14 @@ export const InfirmaryInventory: React.FC<InventoryProps> = ({
 
   const lowStockItems = inventory.filter(i => i.remainingStock <= i.minimumLevel);
   
-  // Items expiring within ~60 days (around late 2026 / early 2027)
+  // Calculate expiry warnings against today's date, not a hard-coded demo date.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const expiringItems = inventory.filter(i => {
-    const exp = new Date(i.expiryDate).getTime();
-    const now = new Date('2026-10-21').getTime();
-    const diffDays = (exp - now) / (1000 * 3600 * 24);
-    return diffDays <= 90 && diffDays > 0;
+    if (!i.expiryDate) return false;
+    const exp = new Date(`${i.expiryDate}T00:00:00`);
+    const diffDays = (exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+    return !Number.isNaN(exp.getTime()) && diffDays <= 90 && diffDays >= 0;
   });
 
   const filteredItems = inventory.filter(i => {
