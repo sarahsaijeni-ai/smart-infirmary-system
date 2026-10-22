@@ -2,7 +2,7 @@ import { supabase } from './supabase';
 import type { InventoryItem, ReferralRecord } from '../data/infirmaryData';
 
 function requireClient() {
-  if (!supabase) throw new Error('Supabase is not configured. Set SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in Vercel, then redeploy.');
+  if (!supabase) throw new Error('Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in Netlify, then redeploy.');
   return supabase;
 }
 export async function loadInventory(): Promise<InventoryItem[]> {
